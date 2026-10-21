@@ -1,5 +1,8 @@
 # Tareas — Spec 002
 
+> **Estado**: ninguna tarea empezada. La siguiente es **T1**.
+> Actualiza esta línea al terminar cada tarea.
+
 Ordenadas por dependencia. Cada tarea dura menos de 30 minutos, se implementa
 por separado y termina con sus tests en verde. No se empieza una tarea sin
 haber terminado (y verificado) la anterior.
