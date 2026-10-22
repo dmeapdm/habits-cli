@@ -5,6 +5,10 @@ consecutivos que lleva cada uno y el progreso semanal frente a un objetivo de
 días por semana. Solo biblioteca estándar; `pytest` es la única dependencia de
 desarrollo.
 
+> Reproducción personal del curso [Hello SDD](https://github.com/mouredev/hello-sdd)
+> de [Brais Moure](https://moure.dev/), usada como portfolio de Spec-Driven
+> Development. Ver [Reproducción del curso Hello SDD](#reproducción-del-curso-hello-sdd-portfolio).
+
 ## Requisitos
 
 - Python 3.12 o superior
@@ -110,3 +114,35 @@ proceso están en el repositorio:
 | `specs/002-objetivo-semanal/plan.md` | Plan técnico y decisiones justificadas de la Spec 002 |
 | `specs/002-objetivo-semanal/tasks.md` | Tareas de implementación de la Spec 002 y su estado |
 | `specs/002-objetivo-semanal/validation.md` | Recorrido RF por RF de la Spec 002 |
+
+## Reproducción del curso Hello SDD (portfolio)
+
+Este proyecto es una **reproducción personal del curso [Hello SDD:
+Spec-Driven Development desde cero](https://github.com/mouredev/hello-sdd) de
+[Brais Moure](https://moure.dev/)**, construida de principio a fin con el flujo
+que enseña el curso:
+
+> Constitución → Spec → Clarificación → Plan → Tareas → Implementación
+> (una tarea cada vez, tests primero) → Validación → Cambio.
+
+- **Spec 001** reproduce el proyecto `habits-cli` del curso: RF-1 a RF-11 en
+  EARS, plan, tareas T1–T8 y validación RF por RF.
+- **Spec 002** es una extensión propia para practicar la fase de **cambio**:
+  primero se actualiza la spec (objetivo semanal por hábito, RF-1 a RF-14),
+  después el plan y las tareas, y solo entonces el código.
+
+Qué demuestra el repositorio:
+
+- Requisitos en **EARS** con casos límite y errores explícitos, sin adjetivos no
+  medibles.
+- Separación estricta entre **spec (qué y por qué)**, **plan (cómo)** y
+  **tareas**.
+- Implementación **incremental**: un commit por tarea y la suite en verde en cada
+  uno (67 → 155 tests).
+- **Trazabilidad RF → test** en los `validation.md`, con demo manual y códigos
+  de salida.
+- Arquitectura en tres capas (core sin I/O, storage JSON, CLI) y solo
+  biblioteca estándar.
+
+El historial de commits refleja el avance tarea a tarea; `git log --oneline` es
+la mejor forma de ver el proceso.
