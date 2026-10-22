@@ -1,6 +1,6 @@
 # Tareas — Spec 002
 
-> **Estado**: T1 y T2 completadas (suite en verde: 99 tests). La siguiente es **T3**.
+> **Estado**: T1, T2 y T3 completadas (suite en verde: 109 tests). La siguiente es **T4**.
 > Actualiza esta línea al terminar cada tarea.
 
 Ordenadas por dependencia. Cada tarea dura menos de 30 minutos, se implementa
@@ -17,7 +17,7 @@ haber terminado (y verificado) la anterior.
       el valor por defecto 5 y con objetivo indicado lo valida.
       (RF: RF-1, RF-2, RF-3) Hecho cuando: tests de crear con objetivo
       explícito, con valor por defecto y con objetivo inválido en verde.
-- [ ] T3. `core.py`: `week_start` (lunes de la semana) y `weekly_completed`
+- [x] T3. `core.py`: `week_start` (lunes de la semana) y `weekly_completed`
       (días completados de la semana en curso, ignorando los futuros).
       (RF: RF-4) Hecho cuando: tests de semana de lunes, de martes y de
       domingo, y de conteo dentro, fuera y después de la semana en verde.

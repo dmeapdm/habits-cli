@@ -256,6 +256,22 @@ def last_completion(completions: Iterable[date], today: date) -> date | None:
     return max(days)
 
 
+def week_start(today: date) -> date:
+    """Devuelve el lunes de la semana a la que pertenece `today`."""
+    return today - timedelta(days=today.weekday())
+
+
+def weekly_completed(completions: Iterable[date], today: date) -> int:
+    """Devuelve los días completados en la semana en curso.
+
+    Cuenta los días entre el lunes y el domingo de la semana de `today`, ambos
+    incluidos, ignorando las fechas futuras y los días repetidos. Como `today`
+    siempre cae dentro de esa semana, basta con no contar más allá de hoy.
+    """
+    start = week_start(today)
+    return len({day for day in completions if start <= day <= today})
+
+
 def list_habits(habits: Iterable[Habit], today: date) -> list[HabitSummary]:
     """Devuelve el resumen de cada hábito, ordenado por racha y nombre.
 

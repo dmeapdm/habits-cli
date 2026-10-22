@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 
@@ -372,3 +372,58 @@ def test_parse_goal_rejects_non_integer_text(text):
 def test_parse_goal_rejects_values_out_of_range(text):
     with pytest.raises(core.InvalidGoalError):
         core.parse_goal(text)
+
+
+def test_week_start_on_monday_is_the_same_day():
+    monday = date(2026, 10, 19)
+
+    assert core.week_start(monday) == monday
+
+
+def test_week_start_on_tuesday_is_the_monday():
+    assert core.week_start(date(2026, 10, 20)) == date(2026, 10, 19)
+
+
+def test_week_start_on_sunday_is_the_previous_monday():
+    assert core.week_start(date(2026, 10, 25)) == date(2026, 10, 19)
+
+
+def test_weekly_completed_is_zero_without_completions():
+    assert core.weekly_completed([], TODAY) == 0
+
+
+def test_weekly_completed_counts_days_inside_the_current_week():
+    days = [date(2026, 10, 19), date(2026, 10, 20), TODAY]
+
+    assert core.weekly_completed(days, TODAY) == 3
+
+
+def test_weekly_completed_ignores_days_before_the_week():
+    days = [date(2026, 10, 18), TODAY]
+
+    assert core.weekly_completed(days, TODAY) == 1
+
+
+def test_weekly_completed_ignores_days_after_the_week():
+    days = [TODAY, date(2026, 10, 26)]
+
+    assert core.weekly_completed(days, TODAY) == 1
+
+
+def test_weekly_completed_ignores_future_days_within_the_week():
+    days = [TODAY, date(2026, 10, 25)]
+
+    assert core.weekly_completed(days, TODAY) == 1
+
+
+def test_weekly_completed_ignores_duplicated_days():
+    days = [TODAY, TODAY]
+
+    assert core.weekly_completed(days, TODAY) == 1
+
+
+def test_weekly_completed_counts_the_whole_week_on_sunday():
+    sunday = date(2026, 10, 25)
+    days = [date(2026, 10, 19) + timedelta(days=offset) for offset in range(7)]
+
+    assert core.weekly_completed(days, sunday) == 7
