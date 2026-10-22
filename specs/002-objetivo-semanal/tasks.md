@@ -1,6 +1,6 @@
 # Tareas — Spec 002
 
-> **Estado**: T1, T2 y T3 completadas (suite en verde: 109 tests). La siguiente es **T4**.
+> **Estado**: T1-T4 completadas (suite en verde: 122 tests). La siguiente es **T5**.
 > Actualiza esta línea al terminar cada tarea.
 
 Ordenadas por dependencia. Cada tarea dura menos de 30 minutos, se implementa
@@ -21,7 +21,7 @@ haber terminado (y verificado) la anterior.
       (días completados de la semana en curso, ignorando los futuros).
       (RF: RF-4) Hecho cuando: tests de semana de lunes, de martes y de
       domingo, y de conteo dentro, fuera y después de la semana en verde.
-- [ ] T4. `core.py`: `set_goal` cambia el objetivo del hábito conservando
+- [x] T4. `core.py`: `set_goal` cambia el objetivo del hábito conservando
       nombre, fecha de creación e historial; falla si el hábito no existe.
       (RF: RF-8, RF-10, RF-11) Hecho cuando: tests de cambio de objetivo, de
       conservación del historial y de hábito inexistente en verde.

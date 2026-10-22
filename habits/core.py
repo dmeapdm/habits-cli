@@ -138,6 +138,13 @@ def validate_goal(goal: int) -> int:
     return goal
 
 
+def _normalize_goal(goal: int | str) -> int:
+    """Convierte el objetivo (texto o número) en un entero validado."""
+    if isinstance(goal, str):
+        return parse_goal(goal)
+    return validate_goal(goal)
+
+
 def find_habit(habits: Iterable[Habit], name: str) -> Habit | None:
     """Devuelve el hábito cuyo nombre coincide con `name`, o None si no existe."""
     key = name_key(name)
@@ -170,13 +177,34 @@ def add_habit(
 
     if goal is None:
         weekly_goal = DEFAULT_WEEKLY_GOAL
-    elif isinstance(goal, str):
-        weekly_goal = parse_goal(goal)
     else:
-        weekly_goal = validate_goal(goal)
+        weekly_goal = _normalize_goal(goal)
 
     result.append(Habit(name=clean_name, created_at=today, goal=weekly_goal))
     return result
+
+
+def set_goal(
+    habits: Iterable[Habit],
+    name: str,
+    goal: int | str,
+) -> list[Habit]:
+    """Devuelve los hábitos con el objetivo del indicado actualizado.
+
+    Conserva el nombre, la fecha de creación y el historial del hábito. Lanza
+    `HabitNotFoundError` si el hábito no existe e `InvalidGoalError` si el
+    objetivo no es válido.
+    """
+    key = name_key(name)
+    result = list(habits)
+
+    for index, habit in enumerate(result):
+        if name_key(habit.name) != key:
+            continue
+        result[index] = replace(habit, goal=_normalize_goal(goal))
+        return result
+
+    raise HabitNotFoundError(f"no existe el hábito «{name.strip()}»")
 
 
 def mark_done(habits: Iterable[Habit], name: str, today: date) -> list[Habit]:

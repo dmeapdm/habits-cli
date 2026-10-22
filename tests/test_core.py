@@ -427,3 +427,81 @@ def test_weekly_completed_counts_the_whole_week_on_sunday():
     days = [date(2026, 10, 19) + timedelta(days=offset) for offset in range(7)]
 
     assert core.weekly_completed(days, sunday) == 7
+
+
+def test_set_goal_changes_the_goal():
+    habit = core.Habit(name="Estudiar Python", created_at=TODAY, goal=5)
+
+    result = core.set_goal([habit], "Estudiar Python", 3)
+
+    assert result[0].goal == 3
+
+
+def test_set_goal_accepts_a_goal_given_as_text():
+    habit = core.Habit(name="Estudiar Python", created_at=TODAY, goal=5)
+
+    result = core.set_goal([habit], "Estudiar Python", "2")
+
+    assert result[0].goal == 2
+
+
+def test_set_goal_keeps_name_creation_date_and_history():
+    habit = core.Habit(
+        name="Estudiar Python",
+        created_at=date(2026, 10, 1),
+        completions=[date(2026, 10, 19), TODAY],
+        goal=5,
+    )
+
+    result = core.set_goal([habit], "Estudiar Python", 2)
+
+    assert result[0].name == "Estudiar Python"
+    assert result[0].created_at == date(2026, 10, 1)
+    assert result[0].completions == [date(2026, 10, 19), TODAY]
+
+
+def test_set_goal_assigns_a_goal_to_a_habit_without_one():
+    habit = core.Habit(name="Leer", created_at=TODAY)
+
+    result = core.set_goal([habit], "Leer", 4)
+
+    assert result[0].goal == 4
+
+
+def test_set_goal_finds_habit_ignoring_case_and_spaces():
+    habit = core.Habit(name="Estudiar Python", created_at=TODAY, goal=5)
+
+    result = core.set_goal([habit], "  estudiar python ", 3)
+
+    assert result[0].goal == 3
+
+
+def test_set_goal_keeps_the_other_habits():
+    keep = core.Habit(name="Leer", created_at=TODAY, goal=4)
+    change = core.Habit(name="Estudiar Python", created_at=TODAY, goal=5)
+
+    result = core.set_goal([keep, change], "Estudiar Python", 2)
+
+    assert result[0] == keep
+    assert result[1].goal == 2
+
+
+def test_set_goal_does_not_mutate_the_given_habit():
+    habit = core.Habit(name="Estudiar Python", created_at=TODAY, goal=5)
+
+    core.set_goal([habit], "Estudiar Python", 2)
+
+    assert habit.goal == 5
+
+
+def test_set_goal_raises_not_found_for_unknown_habit():
+    with pytest.raises(core.HabitNotFoundError):
+        core.set_goal([], "Estudiar Python", 3)
+
+
+@pytest.mark.parametrize("goal", [0, 8, -1, "abc", ""])
+def test_set_goal_rejects_an_invalid_goal(goal):
+    habit = core.Habit(name="Estudiar Python", created_at=TODAY, goal=5)
+
+    with pytest.raises(core.InvalidGoalError):
+        core.set_goal([habit], "Estudiar Python", goal)
