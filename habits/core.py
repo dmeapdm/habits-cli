@@ -250,6 +250,8 @@ class HabitSummary:
     name: str
     streak: int
     last_completion: date | None
+    goal: int | None
+    week_completed: int
 
 
 def calculate_streak(completions: Iterable[date], today: date) -> int:
@@ -311,6 +313,8 @@ def list_habits(habits: Iterable[Habit], today: date) -> list[HabitSummary]:
             name=habit.name,
             streak=calculate_streak(habit.completions, today),
             last_completion=last_completion(habit.completions, today),
+            goal=habit.goal,
+            week_completed=weekly_completed(habit.completions, today),
         )
         for habit in habits
     ]

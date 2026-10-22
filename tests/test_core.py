@@ -505,3 +505,75 @@ def test_set_goal_rejects_an_invalid_goal(goal):
 
     with pytest.raises(core.InvalidGoalError):
         core.set_goal([habit], "Estudiar Python", goal)
+
+
+def test_list_habits_reports_the_goal():
+    habit = core.Habit(name="Estudiar Python", created_at=TODAY, goal=3)
+
+    result = core.list_habits([habit], TODAY)
+
+    assert result[0].goal == 3
+
+
+def test_list_habits_reports_no_goal_for_a_habit_without_one():
+    habit = core.Habit(name="Leer", created_at=TODAY)
+
+    result = core.list_habits([habit], TODAY)
+
+    assert result[0].goal is None
+
+
+def test_list_habits_reports_the_days_completed_this_week():
+    habit = core.Habit(
+        name="Estudiar Python",
+        created_at=TODAY,
+        completions=[date(2026, 10, 19), date(2026, 10, 20), TODAY],
+        goal=5,
+    )
+
+    result = core.list_habits([habit], TODAY)
+
+    assert result[0].week_completed == 3
+
+
+def test_list_habits_ignores_completions_outside_the_current_week():
+    habit = core.Habit(
+        name="Estudiar Python",
+        created_at=TODAY,
+        completions=[date(2026, 10, 18), TODAY, date(2026, 10, 26)],
+        goal=5,
+    )
+
+    result = core.list_habits([habit], TODAY)
+
+    assert result[0].week_completed == 1
+
+
+def test_list_habits_reports_progress_above_the_goal():
+    habit = core.Habit(
+        name="Estudiar Python",
+        created_at=TODAY,
+        completions=[date(2026, 10, 19), date(2026, 10, 20), TODAY],
+        goal=2,
+    )
+
+    result = core.list_habits([habit], TODAY)
+
+    assert result[0].goal == 2
+    assert result[0].week_completed == 3
+
+
+def test_list_habits_uses_the_new_goal_after_a_goal_change():
+    habit = core.Habit(
+        name="Estudiar Python",
+        created_at=TODAY,
+        completions=[date(2026, 10, 19), date(2026, 10, 20), TODAY],
+        goal=5,
+    )
+
+    changed = core.set_goal([habit], "Estudiar Python", 2)
+
+    result = core.list_habits(changed, TODAY)
+
+    assert result[0].goal == 2
+    assert result[0].week_completed == 3
