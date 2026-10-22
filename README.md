@@ -16,14 +16,16 @@ desarrollo.
 
 ## Uso
 
-La aplicación se ejecuta desde el árbol de fuentes, sin instalar nada:
+La aplicación se ejecuta desde el árbol de fuentes, sin instalar nada. En
+sistemas donde `python` ya apunta a Python 3, puedes usar `python` en lugar de
+`python3`:
 
 ```bash
-python -m habits add "Estudiar Python" --goal 3
-python -m habits done "Estudiar Python"
-python -m habits list
-python -m habits edit "Estudiar Python" --goal 5
-python -m habits rm "Estudiar Python"
+python3 -m habits add "Estudiar Python" --goal 3
+python3 -m habits done "Estudiar Python"
+python3 -m habits list
+python3 -m habits edit "Estudiar Python" --goal 5
+python3 -m habits rm "Estudiar Python"
 ```
 
 | Orden | Qué hace | Salida |
@@ -90,7 +92,7 @@ pytest -q
 ```
 habits/
 ├── __init__.py
-├── __main__.py   → python -m habits
+├── __main__.py   → python3 -m habits
 ├── cli.py        → parseo de argumentos y mensajes al usuario
 ├── core.py       → lógica pura: crear, marcar, eliminar, racha, objetivo semanal, listar
 └── storage.py    → lectura y escritura del archivo JSON
