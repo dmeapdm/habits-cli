@@ -1,6 +1,6 @@
 # Tareas — Spec 002
 
-> **Estado**: T1 completada (suite en verde: 89 tests). La siguiente es **T2**.
+> **Estado**: T1 y T2 completadas (suite en verde: 99 tests). La siguiente es **T3**.
 > Actualiza esta línea al terminar cada tarea.
 
 Ordenadas por dependencia. Cada tarea dura menos de 30 minutos, se implementa
@@ -13,7 +13,7 @@ haber terminado (y verificado) la anterior.
       fuera de 1-7.
       (RF: RF-3, RF-14) Hecho cuando: tests de serializar y deserializar el
       objetivo, y de rechazar "abc", 0, 8 y -1 en verde.
-- [ ] T2. `core.py`: `add_habit` acepta el objetivo; sin objetivo indicado usa
+- [x] T2. `core.py`: `add_habit` acepta el objetivo; sin objetivo indicado usa
       el valor por defecto 5 y con objetivo indicado lo valida.
       (RF: RF-1, RF-2, RF-3) Hecho cuando: tests de crear con objetivo
       explícito, con valor por defecto y con objetivo inválido en verde.

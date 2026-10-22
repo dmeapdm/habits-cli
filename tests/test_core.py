@@ -48,6 +48,42 @@ def test_add_habit_does_not_mutate_the_given_list():
     assert result is not habits
 
 
+def test_add_habit_uses_the_default_goal_when_no_goal_is_given():
+    habits = core.add_habit([], "Estudiar Python", TODAY)
+
+    assert habits[0].goal == core.DEFAULT_WEEKLY_GOAL
+
+
+def test_add_habit_uses_the_default_goal_when_the_goal_is_none():
+    habits = core.add_habit([], "Estudiar Python", TODAY, goal=None)
+
+    assert habits[0].goal == core.DEFAULT_WEEKLY_GOAL
+
+
+def test_add_habit_accepts_an_explicit_goal():
+    habits = core.add_habit([], "Estudiar Python", TODAY, goal=3)
+
+    assert habits[0].goal == 3
+
+
+def test_add_habit_accepts_a_goal_given_as_text():
+    habits = core.add_habit([], "Estudiar Python", TODAY, goal="3")
+
+    assert habits[0].goal == 3
+
+
+@pytest.mark.parametrize("goal", [0, 8, -1])
+def test_add_habit_rejects_a_goal_out_of_range(goal):
+    with pytest.raises(core.InvalidGoalError):
+        core.add_habit([], "Estudiar Python", TODAY, goal=goal)
+
+
+@pytest.mark.parametrize("goal", ["abc", "", "3.5"])
+def test_add_habit_rejects_a_non_numeric_goal(goal):
+    with pytest.raises(core.InvalidGoalError):
+        core.add_habit([], "Estudiar Python", TODAY, goal=goal)
+
+
 def test_habit_round_trips_through_dict():
     habit = core.Habit(
         name="Estudiar Python",

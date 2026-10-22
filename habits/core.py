@@ -121,7 +121,17 @@ def parse_goal(text: str) -> int:
     if not cleaned.isascii() or not cleaned.isdigit():
         raise InvalidGoalError(INVALID_GOAL_MESSAGE)
 
-    goal = int(cleaned)
+    return validate_goal(int(cleaned))
+
+
+def validate_goal(goal: int) -> int:
+    """Comprueba que el objetivo sea un número entero entre 1 y 7.
+
+    Devuelve el propio objetivo si es válido y lanza `InvalidGoalError` si no
+    lo es.
+    """
+    if isinstance(goal, bool) or not isinstance(goal, int):
+        raise InvalidGoalError(INVALID_GOAL_MESSAGE)
     if not MIN_WEEKLY_GOAL <= goal <= MAX_WEEKLY_GOAL:
         raise InvalidGoalError(INVALID_GOAL_MESSAGE)
 
@@ -137,11 +147,18 @@ def find_habit(habits: Iterable[Habit], name: str) -> Habit | None:
     return None
 
 
-def add_habit(habits: Iterable[Habit], name: str, today: date) -> list[Habit]:
+def add_habit(
+    habits: Iterable[Habit],
+    name: str,
+    today: date,
+    goal: int | str | None = None,
+) -> list[Habit]:
     """Devuelve los hábitos con uno nuevo llamado `name` creado hoy.
 
-    Lanza `InvalidNameError` si el nombre está vacío y `DuplicateHabitError`
-    si ya existe un hábito con ese nombre.
+    `goal` es el objetivo semanal: si no se indica, se usa
+    `DEFAULT_WEEKLY_GOAL`; si se indica, se valida. Lanza `InvalidNameError`
+    si el nombre está vacío, `DuplicateHabitError` si ya existe un hábito con
+    ese nombre e `InvalidGoalError` si el objetivo no es válido.
     """
     clean_name = normalize_name(name)
     if not clean_name:
@@ -151,7 +168,14 @@ def add_habit(habits: Iterable[Habit], name: str, today: date) -> list[Habit]:
     if find_habit(result, clean_name) is not None:
         raise DuplicateHabitError(f"ya existe un hábito llamado «{clean_name}»")
 
-    result.append(Habit(name=clean_name, created_at=today))
+    if goal is None:
+        weekly_goal = DEFAULT_WEEKLY_GOAL
+    elif isinstance(goal, str):
+        weekly_goal = parse_goal(goal)
+    else:
+        weekly_goal = validate_goal(goal)
+
+    result.append(Habit(name=clean_name, created_at=today, goal=weekly_goal))
     return result
 
 
