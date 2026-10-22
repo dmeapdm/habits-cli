@@ -67,6 +67,19 @@ def test_add_without_goal_uses_the_default_goal(data_path, capsys):
     assert "esta semana 0/5" in out
 
 
+def test_goal_does_not_depend_on_the_week(data_path, capsys):
+    run(
+        ["add", "Estudiar Python", "--goal", "3"],
+        data_path,
+        capsys,
+        today=date(2026, 10, 25),
+    )
+
+    _, out, _ = run(["list"], data_path, capsys, today=date(2026, 10, 26))
+
+    assert "esta semana 0/3" in out
+
+
 @pytest.mark.parametrize("goal", ["abc", "0", "8", "-1"])
 def test_add_with_an_invalid_goal_is_a_business_error(data_path, capsys, goal):
     code, out, err = run(

@@ -1,7 +1,7 @@
 # Tareas — Spec 002
 
-> **Estado**: T1-T7 completadas (suite en verde: 154 tests). La siguiente es **T8**.
-> Actualiza esta línea al terminar cada tarea.
+> **Estado**: todas las tareas completadas (suite en verde: 155 tests).
+> Spec 002 validada en `validation.md`.
 
 Ordenadas por dependencia. Cada tarea dura menos de 30 minutos, se implementa
 por separado y termina con sus tests en verde. No se empieza una tarea sin
@@ -39,7 +39,7 @@ haber terminado (y verificado) la anterior.
       (RF: RF-1..RF-10) Hecho cuando: tests de crear con y sin objetivo, de
       editar, de los dos formatos del listado y de los códigos de salida en
       verde.
-- [ ] T8. Validación final: recorrido de la spec RF por RF anotando qué test
+- [x] T8. Validación final: recorrido de la spec RF por RF anotando qué test
       cubre cada requisito, más la demo manual.
       (RF: todos) Hecho cuando: cada RF tiene un test asociado en verde y la
       demo manual crear con objetivo → listar → editar objetivo → listar no
