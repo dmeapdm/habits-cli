@@ -50,11 +50,96 @@ def test_add_without_name_is_a_usage_error(data_path, capsys):
     assert "falta el nombre" in err
 
 
+def test_add_with_goal_uses_it(data_path, capsys):
+    code, out, err = run(["add", "Estudiar Python", "--goal", "3"], data_path, capsys)
+
+    assert code == 0
+    assert err == ""
+    _, out, _ = run(["list"], data_path, capsys)
+    assert "esta semana 0/3" in out
+
+
+def test_add_without_goal_uses_the_default_goal(data_path, capsys):
+    run(["add", "Estudiar Python"], data_path, capsys)
+
+    _, out, _ = run(["list"], data_path, capsys)
+
+    assert "esta semana 0/5" in out
+
+
+@pytest.mark.parametrize("goal", ["abc", "0", "8", "-1"])
+def test_add_with_an_invalid_goal_is_a_business_error(data_path, capsys, goal):
+    code, out, err = run(
+        ["add", "Estudiar Python", "--goal", goal], data_path, capsys
+    )
+
+    assert code == 1
+    assert "objetivo" in err
+    assert out == ""
+
+
+def test_edit_changes_the_goal(data_path, capsys):
+    run(["add", "Estudiar Python", "--goal", "3"], data_path, capsys)
+
+    code, out, err = run(["edit", "Estudiar Python", "--goal", "2"], data_path, capsys)
+
+    assert code == 0
+    assert "actualizado" in out
+    _, out, _ = run(["list"], data_path, capsys)
+    assert "esta semana 0/2" in out
+
+
+def test_edit_keeps_the_history_and_recalculates_the_progress(data_path, capsys):
+    run(["add", "Estudiar Python", "--goal", "5"], data_path, capsys)
+    run(["done", "Estudiar Python"], data_path, capsys)
+
+    run(["edit", "Estudiar Python", "--goal", "2"], data_path, capsys)
+
+    _, out, _ = run(["list"], data_path, capsys)
+
+    assert "racha 1 día" in out
+    assert "esta semana 1/2" in out
+
+
+def test_edit_with_an_invalid_goal_is_a_business_error(data_path, capsys):
+    run(["add", "Estudiar Python"], data_path, capsys)
+
+    code, out, err = run(["edit", "Estudiar Python", "--goal", "9"], data_path, capsys)
+
+    assert code == 1
+    assert "objetivo" in err
+    assert out == ""
+
+
+def test_edit_of_an_unknown_habit_is_an_error(data_path, capsys):
+    code, out, err = run(["edit", "Estudiar Python", "--goal", "3"], data_path, capsys)
+
+    assert code == 1
+    assert "no existe" in err
+
+
+def test_edit_without_goal_is_a_usage_error(data_path, capsys):
+    run(["add", "Estudiar Python"], data_path, capsys)
+
+    code, out, err = run(["edit", "Estudiar Python"], data_path, capsys)
+
+    assert code == 2
+    assert "falta el objetivo" in err
+
+
+def test_edit_without_name_is_a_usage_error(data_path, capsys):
+    code, out, err = run(["edit", "--goal", "3"], data_path, capsys)
+
+    assert code == 2
+    assert "falta el nombre" in err
+
+
 def test_unknown_command_is_a_usage_error(data_path, capsys):
     code, out, err = run(["borrar", "Estudiar Python"], data_path, capsys)
 
     assert code == 2
     assert "orden desconocida" in err
+    assert "edit" in err
 
 
 def test_without_command_is_a_usage_error(data_path, capsys):
@@ -161,6 +246,40 @@ def test_list_shows_that_a_habit_has_no_completions_yet(data_path, capsys):
     code, out, err = run(["list"], data_path, capsys)
 
     assert "sin días completados" in out
+
+
+def test_list_shows_the_weekly_progress(data_path, capsys):
+    run(["add", "Estudiar Python", "--goal", "5"], data_path, capsys)
+    run(["done", "Estudiar Python"], data_path, capsys)
+
+    code, out, err = run(["list"], data_path, capsys)
+
+    assert code == 0
+    assert "esta semana 1/5" in out
+
+
+def test_list_shows_the_progress_above_the_goal(data_path, capsys):
+    run(["add", "Estudiar Python", "--goal", "2"], data_path, capsys)
+    run(["done", "Estudiar Python"], data_path, capsys, today=date(2026, 10, 19))
+    run(["done", "Estudiar Python"], data_path, capsys, today=date(2026, 10, 20))
+    run(["done", "Estudiar Python"], data_path, capsys)
+
+    code, out, err = run(["list"], data_path, capsys)
+
+    assert "esta semana 3/2" in out
+
+
+def test_list_shows_no_goal_for_a_legacy_habit(data_path, capsys):
+    data_path.write_text(
+        '{"version": 1, "habits": ['
+        '{"name": "Leer", "created_at": "2026-10-01", "completions": []}]}',
+        encoding="utf-8",
+    )
+
+    code, out, err = run(["list"], data_path, capsys)
+
+    assert code == 0
+    assert "sin objetivo" in out
 
 
 def test_rm_deletes_the_habit(data_path, capsys):

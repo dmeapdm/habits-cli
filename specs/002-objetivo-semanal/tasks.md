@@ -1,6 +1,6 @@
 # Tareas — Spec 002
 
-> **Estado**: T1-T5 completadas (suite en verde: 128 tests). La siguiente es **T6**.
+> **Estado**: T1-T7 completadas (suite en verde: 154 tests). La siguiente es **T8**.
 > Actualiza esta línea al terminar cada tarea.
 
 Ordenadas por dependencia. Cada tarea dura menos de 30 minutos, se implementa
@@ -29,12 +29,12 @@ haber terminado (y verificado) la anterior.
       `list_habits` los rellena sin cambiar el orden.
       (RF: RF-5, RF-6, RF-7, RF-12) Hecho cuando: tests del resumen con
       objetivo, sin objetivo y con progreso que supera el objetivo en verde.
-- [ ] T6. `storage.py`: guardar y cargar la clave `goal`; los hábitos
+- [x] T6. `storage.py`: guardar y cargar la clave `goal`; los hábitos
       anteriores sin la clave se leen como "sin objetivo"; un `goal` inválido
       en el archivo es dato corrupto. Depende de T1.
       (RF: RF-11, RF-14) Hecho cuando: tests de ida y vuelta, de archivo
       heredado y de objetivo inválido en el archivo en verde.
-- [ ] T7. `cli.py`: `--goal` en `add`, subcomanda `edit`, y el listado muestra
+- [x] T7. `cli.py`: `--goal` en `add`, subcomanda `edit`, y el listado muestra
       "esta semana X/Y" o "sin objetivo". Depende de T2, T4, T5 y T6.
       (RF: RF-1..RF-10) Hecho cuando: tests de crear con y sin objetivo, de
       editar, de los dos formatos del listado y de los códigos de salida en

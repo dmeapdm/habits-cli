@@ -18,7 +18,7 @@ EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 EXIT_USAGE = 2
 
-COMMANDS = ("add", "done", "list", "rm")
+COMMANDS = ("add", "done", "list", "rm", "edit")
 
 
 class SpanishArgumentParser(argparse.ArgumentParser):
@@ -41,6 +41,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     add_parser = subparsers.add_parser("add", help="Crea un hábito nuevo")
     add_parser.add_argument("name", nargs="?", help="Nombre del hábito")
+    add_parser.add_argument(
+        "--goal",
+        help="Objetivo de días por semana (1-7). Por defecto, 5.",
+    )
 
     done_parser = subparsers.add_parser(
         "done", help="Marca un hábito como hecho hoy"
@@ -51,6 +55,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     rm_parser = subparsers.add_parser("rm", help="Elimina un hábito y su historial")
     rm_parser.add_argument("name", nargs="?", help="Nombre del hábito")
+
+    edit_parser = subparsers.add_parser(
+        "edit", help="Cambia el objetivo de un hábito"
+    )
+    edit_parser.add_argument("name", nargs="?", help="Nombre del hábito")
+    edit_parser.add_argument(
+        "--goal",
+        help="Objetivo de días por semana (1-7).",
+    )
 
     return parser
 
@@ -95,7 +108,7 @@ def main(
         if args.name is None:
             print("Error: falta el nombre del hábito. Uso: habits add <nombre>", file=err)
             return EXIT_USAGE
-        return _run_add(data_path, args.name, current_day, out, err)
+        return _run_add(data_path, args.name, current_day, args.goal, out, err)
     if args.command == "done":
         if args.name is None:
             print(
@@ -106,6 +119,21 @@ def main(
         return _run_done(data_path, args.name, current_day, out, err)
     if args.command == "list":
         return _run_list(data_path, current_day, out, err)
+    if args.command == "edit":
+        if args.name is None:
+            print(
+                "Error: falta el nombre del hábito. "
+                "Uso: habits edit <nombre> --goal N",
+                file=err,
+            )
+            return EXIT_USAGE
+        if args.goal is None:
+            print(
+                "Error: falta el objetivo. Uso: habits edit <nombre> --goal N",
+                file=err,
+            )
+            return EXIT_USAGE
+        return _run_edit(data_path, args.name, args.goal, out, err)
     if args.name is None:
         print("Error: falta el nombre del hábito. Uso: habits rm <nombre>", file=err)
         return EXIT_USAGE
@@ -113,11 +141,16 @@ def main(
 
 
 def _run_add(
-    path: Path, name: str, today: date, out: TextIO, err: TextIO
+    path: Path,
+    name: str,
+    today: date,
+    goal: str | None,
+    out: TextIO,
+    err: TextIO,
 ) -> int:
     try:
         habits = storage.update(
-            path, lambda current: core.add_habit(current, name, today)
+            path, lambda current: core.add_habit(current, name, today, goal)
         )
     except (core.HabitError, storage.StorageError) as error:
         print(f"Error: {error}", file=err)
@@ -157,6 +190,27 @@ def _run_done(
     return EXIT_SUCCESS
 
 
+def _run_edit(
+    path: Path, name: str, goal: str, out: TextIO, err: TextIO
+) -> int:
+    try:
+        habits = storage.update(
+            path, lambda current: core.set_goal(current, name, goal)
+        )
+    except core.HabitNotFoundError as error:
+        print(f"Error: {error}. Consulta tus hábitos con «habits list».", file=err)
+        return EXIT_ERROR
+    except (core.HabitError, storage.StorageError) as error:
+        print(f"Error: {error}", file=err)
+        return EXIT_ERROR
+
+    updated = core.find_habit(habits, name)
+    goal_days = updated.goal if updated is not None else goal
+    days = "1 día" if goal_days == 1 else f"{goal_days} días"
+    print(f"Objetivo de «{name.strip()}» actualizado a {days} por semana.", file=out)
+    return EXIT_SUCCESS
+
+
 def _run_list(path: Path, today: date, out: TextIO, err: TextIO) -> int:
     try:
         habits = storage.load(path)
@@ -173,12 +227,16 @@ def _run_list(path: Path, today: date, out: TextIO, err: TextIO) -> int:
         return EXIT_SUCCESS
 
     for summary in summaries:
+        if summary.goal is None:
+            weekly = "sin objetivo"
+        else:
+            weekly = f"esta semana {summary.week_completed}/{summary.goal}"
         if summary.last_completion is None:
             detail = "sin días completados"
         else:
             detail = f"último: {summary.last_completion.isoformat()}"
         days = "1 día" if summary.streak == 1 else f"{summary.streak} días"
-        print(f"{summary.name} — racha {days} — {detail}", file=out)
+        print(f"{summary.name} — racha {days} — {weekly} — {detail}", file=out)
 
     return EXIT_SUCCESS
 
