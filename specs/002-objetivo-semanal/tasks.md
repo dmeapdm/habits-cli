@@ -1,13 +1,13 @@
 # Tareas — Spec 002
 
-> **Estado**: ninguna tarea empezada. La siguiente es **T1**.
+> **Estado**: T1 completada (suite en verde: 89 tests). La siguiente es **T2**.
 > Actualiza esta línea al terminar cada tarea.
 
 Ordenadas por dependencia. Cada tarea dura menos de 30 minutos, se implementa
 por separado y termina con sus tests en verde. No se empieza una tarea sin
 haber terminado (y verificado) la anterior.
 
-- [ ] T1. `core.py`: campo `goal` en el dataclass `Habit` (con `to_dict` y
+- [x] T1. `core.py`: campo `goal` en el dataclass `Habit` (con `to_dict` y
       `from_dict`), constante `DEFAULT_WEEKLY_GOAL`, excepción
       `InvalidGoalError` y `parse_goal` que rechaza texto no entero y valores
       fuera de 1-7.

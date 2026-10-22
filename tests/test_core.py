@@ -255,3 +255,84 @@ def test_list_habits_ignores_future_dates_in_the_last_completion():
     result = core.list_habits([habit], TODAY)
 
     assert result[0].last_completion == date(2026, 10, 20)
+
+
+def test_default_weekly_goal_is_five():
+    assert core.DEFAULT_WEEKLY_GOAL == 5
+
+
+def test_habit_to_dict_includes_the_goal():
+    habit = core.Habit(name="Estudiar Python", created_at=TODAY, goal=3)
+
+    assert habit.to_dict()["goal"] == 3
+
+
+def test_habit_to_dict_omits_the_goal_when_the_habit_has_none():
+    habit = core.Habit(name="Leer", created_at=TODAY)
+
+    assert "goal" not in habit.to_dict()
+
+
+def test_habit_from_dict_reads_the_goal():
+    habit = core.Habit.from_dict(
+        {
+            "name": "Estudiar Python",
+            "created_at": "2026-10-21",
+            "completions": [],
+            "goal": 3,
+        }
+    )
+
+    assert habit.goal == 3
+
+
+def test_habit_from_dict_without_goal_key_reads_no_goal():
+    habit = core.Habit.from_dict(
+        {"name": "Leer", "created_at": "2026-10-01", "completions": []}
+    )
+
+    assert habit.goal is None
+
+
+def test_habit_round_trips_with_goal():
+    habit = core.Habit(
+        name="Estudiar Python",
+        created_at=TODAY,
+        completions=[date(2026, 10, 20)],
+        goal=4,
+    )
+
+    assert core.Habit.from_dict(habit.to_dict()) == habit
+
+
+@pytest.mark.parametrize("goal", [0, 8, -1])
+def test_habit_from_dict_rejects_goal_out_of_range(goal):
+    data = {"name": "Estudiar Python", "created_at": "2026-10-21", "completions": []}
+
+    with pytest.raises(ValueError):
+        core.Habit.from_dict({**data, "goal": goal})
+
+
+@pytest.mark.parametrize("goal", ["tres", 3.0, True, None])
+def test_habit_from_dict_rejects_non_integer_goal(goal):
+    data = {"name": "Estudiar Python", "created_at": "2026-10-21", "completions": []}
+
+    with pytest.raises(ValueError):
+        core.Habit.from_dict({**data, "goal": goal})
+
+
+def test_parse_goal_accepts_a_valid_number():
+    assert core.parse_goal("3") == 3
+    assert core.parse_goal(" 7 ") == 7
+
+
+@pytest.mark.parametrize("text", ["abc", "", "3.5", "-1", "ocho"])
+def test_parse_goal_rejects_non_integer_text(text):
+    with pytest.raises(core.InvalidGoalError):
+        core.parse_goal(text)
+
+
+@pytest.mark.parametrize("text", ["0", "8", "-1"])
+def test_parse_goal_rejects_values_out_of_range(text):
+    with pytest.raises(core.InvalidGoalError):
+        core.parse_goal(text)

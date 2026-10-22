@@ -26,21 +26,43 @@ class HabitNotFoundError(HabitError):
     """No existe el hábito solicitado."""
 
 
+class InvalidGoalError(HabitError):
+    """El objetivo semanal no es válido."""
+
+
+DEFAULT_WEEKLY_GOAL = 5
+MIN_WEEKLY_GOAL = 1
+MAX_WEEKLY_GOAL = 7
+INVALID_GOAL_MESSAGE = "el objetivo debe ser un número entre 1 y 7."
+
+
 @dataclass
 class Habit:
-    """Un hábito de estudio con su historial de días completados."""
+    """Un hábito de estudio con su historial de días completados.
+
+    `goal` es el número de días por semana que se fija como objetivo. `None`
+    significa "sin objetivo" y solo ocurre en los hábitos creados antes de
+    que existiera esta funcionalidad.
+    """
 
     name: str
     created_at: date
     completions: list[date] = field(default_factory=list)
+    goal: int | None = None
 
     def to_dict(self) -> dict[str, object]:
-        """Serializa el hábito a su representación en el archivo de datos."""
-        return {
+        """Serializa el hábito a su representación en el archivo de datos.
+
+        La clave `goal` solo se escribe si el hábito tiene objetivo.
+        """
+        data: dict[str, object] = {
             "name": self.name,
             "created_at": self.created_at.isoformat(),
             "completions": [day.isoformat() for day in self.completions],
         }
+        if self.goal is not None:
+            data["goal"] = self.goal
+        return data
 
     @classmethod
     def from_dict(cls, data: object) -> "Habit":
@@ -70,7 +92,14 @@ class Habit:
         except ValueError as error:
             raise ValueError("las fechas deben estar en formato ISO 8601") from error
 
-        return cls(name=name, created_at=created, completions=days)
+        goal = data.get("goal")
+        if "goal" in data:
+            if isinstance(goal, bool) or not isinstance(goal, int):
+                raise ValueError("goal debe ser un número entero entre 1 y 7")
+            if not MIN_WEEKLY_GOAL <= goal <= MAX_WEEKLY_GOAL:
+                raise ValueError("goal debe ser un número entero entre 1 y 7")
+
+        return cls(name=name, created_at=created, completions=days, goal=goal)
 
 
 def normalize_name(name: str) -> str:
@@ -81,6 +110,22 @@ def normalize_name(name: str) -> str:
 def name_key(name: str) -> str:
     """Clave de comparación de nombres: sin espacios exteriores ni mayúsculas."""
     return name.strip().casefold()
+
+
+def parse_goal(text: str) -> int:
+    """Convierte el texto de la opción de objetivo en un número válido.
+
+    Lanza `InvalidGoalError` si el texto no es un número entero entre 1 y 7.
+    """
+    cleaned = text.strip() if isinstance(text, str) else ""
+    if not cleaned.isascii() or not cleaned.isdigit():
+        raise InvalidGoalError(INVALID_GOAL_MESSAGE)
+
+    goal = int(cleaned)
+    if not MIN_WEEKLY_GOAL <= goal <= MAX_WEEKLY_GOAL:
+        raise InvalidGoalError(INVALID_GOAL_MESSAGE)
+
+    return goal
 
 
 def find_habit(habits: Iterable[Habit], name: str) -> Habit | None:
